@@ -34,9 +34,14 @@ b=zeros(n,1);
 b(1,1)=Gin*Vin; %da modficare qualora non si cambiasse il segno!
 
 format short e;
-
 %2) Verifica esistenza e unicità fattorizzazione LU
 %Sfrutto la condizione sufficiente; Y è SDP (simmetrica definita positiva)
+if(Y == Y')
+    disp('matrice simmetrica!');
+else
+    disp('matrice non simmetrica :(');
+end
+
 eigen=eig(Y);
 for i=eigen
     if(i<=0)
@@ -57,4 +62,42 @@ xm = Y\b;
 %5)
 format short e;
 err = norm(xm-xc,inf);
+
+%Esercizio 3: metodi iterativi
+%1) Verifica Y SDP; già verificata al punto 2.2
+%2) Soluzione con GS
+format long e;
+x0 = zeros(6,1);
+toll = 1e-12;
+nmax = 1000;
+
+[xGS,kGS] = gs(Y,b,x0,toll,nmax);
+
+%3) errore relativo GS
+format short e;
+true_rel_err_GS = norm(xm-xGS)/norm(xm);
+
+%4)raggio spettrale e confronto con errore relativo
+%so già dal punto precedente che la matrice rispetta le ipotesi di
+%applicabilità del metodo
+
+D = diag(diag(Y));
+E = -tril(Y,-1);
+F = -triu(Y,1);
+Bgs=(D-E)\F;
+rhoGS = max(abs(eig(Bgs)));
+rhoGSallaK=rhoGS^kGS;
+
+%5) Richardson
+format long e;
+alpha_opt = 2/(min(eig(Y))+max(eig(Y)));
+[xR,kR] = richardson(Y,b,x0,alpha_opt,toll,nmax);
+
+true_err_rel_R = norm(xm-xR)/norm(xm);
+Br = eye(n)-alpha_opt*Y;
+rhoR = max(abs(eig(Br)));
+rhoRallak = 
+
+
+
 
