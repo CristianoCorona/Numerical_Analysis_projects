@@ -8,9 +8,9 @@ v_inf=R*Ibar_s;
 tau=R*C;
 G=1/R;
 %Definizione funzioni
-v = @(t) v_inf*(1-exp(-t/tau));
-i_R = @(t) G*v(t);
-i_C = @(t) Ibar_s*exp(-t/tau);
+v = @(t) v_inf.*(1.-exp(-t/tau));
+i_R = @(t) G.*v(t);
+i_C = @(t) Ibar_s.*exp(-t/tau);
 
 %1) DERIVAZIONE NUMERICA
 %Vettore distanze h sempre più piccole
@@ -43,3 +43,31 @@ end
 setfonts();
 [p,C]=order_estimate(hvec,errvec);
 format short e;
+%Dati da riportare
+disp("p =");
+disp(p);
+disp("C =")
+disp(C);
+%Newton
+toll=10e-10;
+t0=T/2;
+nmax=10000; %non presente nella specifica
+%traslazione: non voglio trovare lo zero, ma quando v vale 1mV
+v_trasl = @(t) (v_inf.*(1.-exp(-t/tau)))-1e-3;
+dv_trasl=@(t) (v_inf/tau)*(exp(-t/tau));
+[x_vect,k_new]=newton(t0,nmax,toll,v_trasl,dv_trasl);
+t_star=x_vect(end);
+format short e;
+%Dati da riportare
+disp("t_star = ");
+disp(t_star);
+disp("k_new = ")
+disp(k_new);
+
+%2)INTERPOLAZIONE GLOBALE
+a=0;
+b=T;
+nvec=[1:10]'; %valori di grado n nel polinomio d'interpolazione
+err_vec=[];
+xx  = [a:(b-a)/1000:b]';
+iCex= i_C(xx);
